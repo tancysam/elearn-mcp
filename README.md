@@ -1,8 +1,14 @@
+> [!IMPORTANT]
+> This project does not attempt to bypass or subvert authentication and restrictions imposed by D2L or SMU, choosing to utilise the D2L API directly after conducting proper auth via Chrome. This project does not have any association to SMU or D2L. If there are any issues, do contact me directly or create an issue.
+
 # SMU eLearn MCP
 
 A local, read-only Model Context Protocol server for SMU's D2L Brightspace deployment. It exposes courses, pinned courses, weekly modules, course documents, recent uploads/changes, content search, metadata, and file downloads.
 
 This is a local, single-user stdio service. It is not intended to be exposed as a network server or shared between users.
+
+The best way to use this MCP is through Codex or Claude, in which I have packaged it as installable plugins under the `plugin-package/` folder.
+
 
 ## Capabilities
 
@@ -160,7 +166,5 @@ This distinction is intentional: a file stored in “Week 3” may have been upl
 ## Authentication lifecycle
 
 The `elearn_authenticate` MCP tool and `npm run auth` command launch the dedicated Chrome profile for user-controlled SSO and MFA. They wait one minute before the first automatic check, poll briefly if needed, verify the D2L API, and write a `0600` Playwright storage-state file. The server launches a separate headless Chrome context with that state and sends same-origin API requests through it. This preserves SMU and Microsoft control of interactive authentication while allowing MCP processes to restart. When the institutional session expires, call `elearn_authenticate` or rerun `npm run auth`.
-
-See [docs/DISCOVERY.md](docs/DISCOVERY.md) for the observed site structure, authentication boundary, and D2L endpoint map.
 
 See [SECURITY.md](SECURITY.md) for the local deployment boundary, credential-handling guidance, and release checks.
