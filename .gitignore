@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+downloads/
+.env
+*.log
+*.tgz
+.DS_Store
+.idea/
+.vscode/
+
+# Generated from the root source and lockfile by `npm run build:plugins`.
+plugin-package/*/smu-elearn/mcp/
+plugin-package/*/smu-elearn/.mcp-build-*/
+
+# Authentication is stored in a dedicated browser profile outside this repo.
+.auth-profile/

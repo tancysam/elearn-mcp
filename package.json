@@ -1,0 +1,50 @@
+{
+  "name": "@smu/elearn-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "A read-only MCP server for SMU eLearn (D2L Brightspace)",
+  "type": "module",
+  "bin": {
+    "elearn-mcp": "dist/src/server.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    ".env.example",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "auth": "npm run build --silent && node dist/src/auth.js",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "build:plugin": "npm run build:plugins",
+    "build:plugins": "npm run build && node scripts/build-plugin.mjs",
+    "postbuild": "node -e \"require('node:fs').chmodSync('dist/src/server.js', 0o755)\"",
+    "check": "npm run typecheck && npm test && npm run build",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "start": "node dist/src/server.js",
+    "dev": "tsx src/server.ts",
+    "test": "vitest run",
+    "test:live": "npm run build --silent && node scripts/live-run.mjs",
+    "test:plugins": "node scripts/plugin-smoke-test.mjs",
+    "test:full": "npm run typecheck && npm test && npm run test:live",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run check"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "playwright-core": "^1.62.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "smu-local",
+  "description": "Local Claude Code plugins for read-only access to SMU services.",
+  "owner": {
+    "name": "Local developer"
+  },
+  "plugins": [
+    {
+      "name": "smu-elearn",
+      "source": "./plugin-package/claude/smu-elearn",
+      "description": "Read-only access to courses and documents in SMU eLearn"
+    }
+  ]
+}

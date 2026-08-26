@@ -1,0 +1,33 @@
+{
+  "name": "smu-elearn",
+  "version": "0.1.0",
+  "description": "Read-only access to SMU eLearn courses, pinned courses, weekly modules, documents, search, metadata, and downloads.",
+  "author": {
+    "name": "Local developer"
+  },
+  "keywords": [
+    "smu",
+    "elearn",
+    "brightspace",
+    "courses",
+    "documents"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "SMU eLearn",
+    "shortDescription": "Browse SMU courses and weekly documents.",
+    "longDescription": "Connects to SMU eLearn through a local read-only MCP server. Open Chrome for user-controlled SMU SSO/MFA, then list courses and pinned courses, inspect weekly modules, find recent or course-specific documents, search content, read metadata, and download files locally.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Download"
+    ],
+    "defaultPrompt": [
+      "List my pinned SMU eLearn courses.",
+      "Show this week's new eLearn documents.",
+      "Find the Week 3 documents for a course."
+    ]
+  }
+}
