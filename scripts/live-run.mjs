@@ -7,6 +7,11 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 const expectedTools = [
+  "elearn_preview_downloads",
+  "elearn_confirm_downloads",
+  "elearn_open_course_browser",
+  "elearn_browse_course",
+  "elearn_download_documents",
   "elearn_authenticate",
   "elearn_auth_status",
   "elearn_list_courses",
@@ -21,12 +26,13 @@ const expectedTools = [
 ];
 
 const client = new Client({ name: "smu-elearn-full-run", version: "1.0.0" });
+const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "elearn-mcp-full-run-"));
 const transport = new StdioClientTransport({
   command: "node",
   args: ["dist/src/server.js"],
   stderr: "pipe",
+  env: { ...Object.fromEntries(Object.entries(process.env).filter(([, value]) => value !== undefined)), ELEARN_DOWNLOAD_DIR: temporaryDirectory },
 });
-const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "elearn-mcp-full-run-"));
 const timings = [];
 
 async function call(name, args = {}) {
@@ -71,6 +77,10 @@ try {
     pinnedResult.courses[0] ??
     courseResult.courses[0];
   assert.ok(selectedCourse, "Could not select a course for content tests");
+  const browserLaunch = await call("elearn_open_course_browser");
+  assert.ok(browserLaunch.courses.some((course) => course.id === selectedCourse.id));
+  const browserData = await call("elearn_browse_course", { courseId: selectedCourse.id });
+  assert.ok(Array.isArray(browserData.weeks) && Array.isArray(browserData.documents));
 
   const weekResult = await call("elearn_list_course_weeks", { courseId: selectedCourse.id });
   assert.ok(weekResult.count > 0, `No weekly modules found in ${selectedCourse.name}`);
@@ -143,6 +153,16 @@ try {
   assert.ok(downloadedStat.size > 0, "Downloaded file was empty");
   assert.equal(downloadedStat.size, downloaded.bytes, "Reported and on-disk download sizes differed");
   assert.equal(path.dirname(downloaded.path), temporaryDirectory, "Download escaped the isolated directory");
+  const batch = await call("elearn_download_documents", { documents: [
+    { courseId: selectedCourse.id, topicId: searchTarget.topicId },
+    { courseId: selectedCourse.id, topicId: searchTarget.topicId },
+  ] });
+  assert.equal(batch.succeeded, 1, "Batch should download a duplicate selection only once");
+  assert.equal(batch.failed, 0);
+  const batchFile = batch.results[0].download;
+  assert.notEqual(batchFile.path, downloaded.path, "Batch must not overwrite an existing file");
+  assert.equal(path.dirname(batchFile.path), temporaryDirectory);
+  assert.equal((await fs.stat(batchFile.path)).size, batchFile.bytes);
 
   const storageStatePath =
     process.env.ELEARN_AUTH_STATE_FILE ?? path.join(os.homedir(), ".elearn-mcp", "storage-state.json");

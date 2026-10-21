@@ -14,6 +14,11 @@ The best way to use this MCP is through Codex or Claude, in which I have package
 
 | MCP tool | Purpose |
 |---|---|
+| `elearn_preview_downloads` | Prepare a weekly/search/selected-file preview without writing downloads. |
+| `elearn_confirm_downloads` | UI-only confirmation for checked files in an active preview. |
+| `elearn_open_course_browser` | Open the interactive course browser from chat or supported navigation entrypoints. |
+| `elearn_browse_course` | Load visible course documents and weekly modules with exact module ancestry. |
+| `elearn_download_documents` | Download up to 50 selected file topics, with deduplication and individual success/failure results. |
 | `elearn_authenticate` | Open Chrome for SMU SSO/MFA, wait one minute, automatically verify, and save the session. |
 | `elearn_auth_status` | Verify that the locally saved browser session can access the eLearn API. |
 | `elearn_list_courses` | List/search accessible courses with IDs, codes, dates, role, and pin state. |
@@ -27,6 +32,51 @@ The best way to use this MCP is through Codex or Claude, in which I have package
 | `elearn_download_document` | Download a topic file locally without overwriting an existing file. |
 
 The implementation uses D2L's documented read-only API routes. It does not scrape the visible homepage and does not modify courses, pin state, submissions, grades, messages, or content.
+
+## Preview downloads before confirming
+
+For weekly or search-based downloads, ask **“Preview this week's eLearn downloads”**, **“Find DOM files to download”**, or **“Preview WAD2 Week 6 files.”** The plugin's `preview-downloads` skill routes these requests to `elearn_preview_downloads`, which reads metadata and opens a confirmation view without downloading any files.
+
+The view lists course, module, filename, modification date, and local destination. Matching files are initially checked (up to 50 per batch). Uncheck anything unwanted, then click **Confirm downloads**. Only that click invokes the UI-only `elearn_confirm_downloads` action. It rejects files outside the preview, repeated downloads of successfully saved files in the same preview, and concurrent duplicate confirmations. Failed items remain available for retry.
+
+- No filters: files modified this Monday–Sunday in **Asia/Singapore**, across pinned courses.
+- `query`: title/module search across all dates; combine with `period: this_week` when requested.
+- `week`: academic Week N modules, independent of calendar dates.
+- `courseIds` or `scope: all`: selected courses or all accessible courses.
+- `since` / `until`: inclusive Singapore calendar dates (`YYYY-MM-DD`).
+- `documents`: exact courseId/topicId pairs returned by an earlier search or weekly workflow.
+
+Previews show course-loading failures and any matches omitted beyond the 500-file display limit. Plans expire after 30 minutes or an MCP process restart. **Refresh preview** prepares a new list for review and never downloads automatically. For scheduled runs, the skill prepares the preview and stops for confirmation. Installing the skill does not rewrite existing automation prompts; those should call the preview tool rather than legacy download tools. Hosts without MCP Apps can present the list in chat and use legacy tools only after explicit approval.
+
+The local fixture preview supports `http://127.0.0.1:4178/?preview=1` and `?preview=1&query=DOM`.
+
+## Interactive course browser
+
+In an MCP Apps-compatible host, ask **“Open the eLearn course browser.”** Hosts supporting OpenAI Extensions also expose **Course browser** in global navigation and as a conversation tab. The app requests fullscreen placement (the side panel in Codex). Clients without MCP Apps can continue using the regular tools.
+
+The browser includes:
+
+- Pinned/all-course navigation and course-name/code search.
+- Weekly-module selection, including nested documents. **All weeks & modules** includes files outside week folders.
+- Combined document-title/module search, file-type filters, and inclusive modification dates in **Asia/Singapore**.
+- **Open in eLearn** actions for courses and documents through the host's link API.
+- Individual selection or **Select visible files**, with up to 50 files per batch. Selection persists across filters within a course and clears when changing courses.
+- Downloads to `ELEARN_DOWNLOAD_DIR` (shown in the selection bar), without overwriting existing files. Results show saved paths and individual failures; failed files remain selected for retry.
+- Loading, empty, expired-session, and partial-failure states, plus host light/dark appearance and narrow-panel layouts.
+
+Hidden content is excluded. Locked or broken files and web links cannot be selected for downloading. Dates use D2L's modification timestamp, not an inferred original upload date. Documents without a known modification date are excluded when a date filter is active. File types are inferred from the topic URL or title; unknown extensions appear as **FILE**.
+
+The UI runs in the host and calls the local MCP server. No cloud server or frontend network requests to eLearn are added; Chrome session cookies stay in the existing local authentication flow. The browser does not extract or search inside document contents.
+
+To develop the UI without signing in:
+
+```bash
+npm run preview:browser
+```
+
+Open `http://127.0.0.1:4178` for a clearly labelled fixture preview using the official MCP Apps host bridge. Preview downloads and authentication are simulated. Add `?auth=1` to exercise the expired-session screen. This preview server is development-only and is not bundled in either plugin.
+
+After changing the source, run `npm run build:plugins` and `npm run test:plugins`, then reload the installed plugin through the host's supported flow. A running chat may retain the old tool list until the plugin/server reloads or a fresh chat starts. Native navigation placement must be checked in the intended host; the fixture preview does not prove it.
 
 ## Requirements
 
@@ -58,7 +108,7 @@ Run the complete live MCP test after authenticating:
 npm run test:full
 ```
 
-The full run performs the typecheck and unit tests, builds the production server, connects through MCP stdio, validates all eleven tools against live eLearn data, downloads one real file into an isolated operating-system temporary directory, verifies the file, and removes the temporary directory in a `finally` cleanup. It never submits or changes data in eLearn.
+The full run performs the typecheck and unit tests, builds the production server, connects through MCP stdio, checks the browser and legacy tools against live eLearn data, checks single and deduplicated batch downloads in an isolated operating-system temporary directory, verifies the files, and removes the temporary directory in a `finally` cleanup. It never submits or changes data in eLearn.
 
 ## MCP client configuration
 

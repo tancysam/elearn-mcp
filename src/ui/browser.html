@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SMU eLearn · Course browser</title>
+    <style>
+      /* APP_STYLES */
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">e</span>
+        <div>
+          <strong>SMU eLearn</strong><span class="muted">Course browser</span>
+        </div>
+      </div>
+      <button id="refresh" class="btn" disabled>Refresh</button>
+    </header>
+    <div id="notice" role="status" aria-live="polite">
+      Connecting to eLearn…
+    </div>
+    <div id="connection" hidden>
+      <p>
+        Sign in through the dedicated Chrome window, then return here. Your
+        password and MFA stay with SMU.
+      </p>
+      <button id="authenticate" class="btn">Sign in to eLearn</button>
+    </div>
+    <div class="workspace">
+      <aside aria-label="Courses">
+        <div class="sidebar-heading">
+          <h2>My courses</h2>
+          <span id="course-count" class="count">0</span>
+        </div>
+        <label class="sr-only" for="course-search">Search courses</label>
+        <input
+          id="course-search"
+          type="search"
+          placeholder="Find a course…"
+          autocomplete="off"
+        />
+        <div class="scope" role="group" aria-label="Course scope">
+          <button id="pinned" aria-pressed="true">Pinned</button
+          ><button id="all-courses" aria-pressed="false">All courses</button>
+        </div>
+        <nav id="courses" aria-label="Choose a course"></nav>
+        <p class="sidebar-note">
+          Course content stays read-only.<br />Downloads save to your computer.
+        </p>
+      </aside>
+      <main>
+        <div class="course-heading">
+          <div>
+            <p class="eyebrow">YOUR LEARNING LIBRARY</p>
+            <h1 id="course-title">Choose a course</h1>
+            <p id="course-description" class="muted">
+              Browse weekly materials and keep what you need.
+            </p>
+          </div>
+          <button id="open-course" class="btn" hidden>Open in eLearn ↗</button>
+        </div>
+        <section id="document-controls" aria-label="Document filters" hidden>
+          <div class="primary-filters">
+            <label
+              >Week<select id="week">
+                <option value="">All weeks & modules</option>
+              </select></label
+            ><label class="document-search"
+              >Search documents<input
+                id="document-search"
+                type="search"
+                placeholder="Search titles or modules…"
+                autocomplete="off"
+            /></label>
+          </div>
+          <div class="secondary-filters">
+            <label
+              >File type<select id="file-type">
+                <option value="">All types</option>
+              </select></label
+            ><label>Modified from<input id="since" type="date" /></label
+            ><label>Through<input id="until" type="date" /></label
+            ><button id="clear-filters" class="text-button">
+              Reset filters
+            </button>
+          </div>
+          <p id="date-error" class="error-text" role="alert" hidden>
+            Choose an end date on or after the start date.
+          </p>
+        </section>
+        <div class="list-heading">
+          <label
+            ><input id="select-all" type="checkbox" disabled /> Select visible
+            files</label
+          ><span id="document-count" class="muted">0 documents</span>
+        </div>
+        <div id="documents" aria-busy="false">
+          <div class="empty">
+            <span class="empty-icon" aria-hidden="true">▤</span>
+            <h2>Your course materials, together</h2>
+            <p>Choose a pinned course to browse its weeks and documents.</p>
+          </div>
+        </div>
+        <section id="download-results" aria-label="Download results" hidden>
+          <h2>Download results</h2>
+          <ul id="result-list"></ul>
+        </section>
+        <footer class="selection-bar">
+          <div>
+            <strong id="selection-count">No files selected</strong
+            ><span id="destination" class="muted"
+              >Select files to download them together.</span
+            >
+          </div>
+          <div class="selection-actions">
+            <button id="clear-selection" class="text-button" disabled>
+              Clear</button
+            ><button id="download" class="btn btn-primary" disabled>
+              Download selected
+            </button>
+          </div>
+        </footer>
+        <p class="footnote">
+          Modification dates use Singapore time. Files with unknown dates are
+          excluded when a date filter is active.
+        </p>
+      </main>
+    </div>
+    <script type="module">
+      /* APP_SCRIPT */
+    </script>
+  </body>
+</html>

@@ -26,3 +26,11 @@ npm run test:live
 ```
 
 The plugin never modifies remote eLearn data. The download tool only writes a local file when explicitly called.
+
+## Course browser
+
+Ask “Open the eLearn course browser” in an MCP Apps-compatible host. OpenAI Extensions-compatible hosts can also expose the browser in navigation and conversation tabs. Browse pinned/all courses and weekly modules, filter documents by title, file type, or modification date, open items in eLearn, and download up to 50 selected files to the configured local download directory. Failed downloads remain selected for retry. Existing chat tools remain available in hosts without MCP Apps.
+
+## Preview before downloading
+
+For weekly or search-based download requests, the `preview-downloads` skill opens a file review with `elearn_preview_downloads`. It does not download anything until the user confirms the checked files. In supported hosts, the UI-only `elearn_confirm_downloads` action downloads at most 50 files per click and rejects off-list or already-saved items. Previews expire after 30 minutes or a process restart; refreshing prepares a new list without downloading.

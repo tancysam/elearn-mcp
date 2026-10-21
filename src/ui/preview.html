@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview eLearn downloads</title>
+    <style>
+      /* APP_STYLES */
+    </style>
+    <style>
+      body {
+        min-width: 280px;
+      }
+      .preview-main {
+        padding: 22px;
+        max-width: 960px;
+        margin: auto;
+      }
+      .preview-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .preview-main h1 {
+        font-size: 22px;
+      }
+      .preview-description {
+        font-size: 12px;
+        line-height: 1.7;
+        margin-top: 8px;
+      }
+      .preview-destination {
+        padding: 12px 14px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin: 18px 0;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      .preview-notice {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.7;
+        margin: 10px 0;
+      }
+      .preview-warning {
+        color: var(--danger);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+      .preview-main .selection-bar {
+        margin-top: 20px;
+      }
+      .preview-main .document {
+        padding: 13px 0;
+      }
+      .preview-main .list-heading {
+        margin-top: 16px;
+      }
+      #preview-results {
+        font-size: 12px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+      }
+      #preview-status {
+        font-size: 12px;
+        line-height: 1.7;
+        margin: 12px 0;
+      }
+      #preview-status[data-error="true"] {
+        color: var(--danger);
+      }
+      @media (max-width: 580px) {
+        .preview-main {
+          padding: 16px;
+        }
+        .preview-heading {
+          align-items: flex-start;
+        }
+        .preview-heading .btn {
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="preview-main">
+      <div class="preview-heading">
+        <div>
+          <p class="eyebrow">SMU ELEARN</p>
+          <h1>Review your downloads</h1>
+        </div>
+        <button id="preview-refresh" class="btn" disabled>
+          Refresh preview
+        </button>
+      </div>
+      <p id="preview-description" class="preview-description muted">
+        Preparing the list of matching files…
+      </p>
+      <div id="preview-destination" class="preview-destination">
+        Loading destination…
+      </div>
+      <p class="preview-notice">
+        Nothing downloads until you confirm. Uncheck any files you don't need.
+        Existing files will be kept; new copies get a different filename.
+      </p>
+      <div id="preview-warnings" class="preview-warning" role="status"></div>
+      <div id="preview-status" role="status" aria-live="polite"></div>
+      <div class="list-heading">
+        <label
+          ><input id="preview-select-all" type="checkbox" disabled /> Select
+          files (up to 50)</label
+        ><span id="preview-count" class="muted">0 files</span>
+      </div>
+      <div id="preview-documents"></div>
+      <footer class="selection-bar">
+        <div>
+          <strong id="preview-selected">No files selected</strong
+          ><span id="preview-expiry" class="muted"></span>
+        </div>
+        <div class="selection-actions">
+          <button id="preview-clear" class="text-button" disabled>Clear</button
+          ><button id="preview-confirm" class="btn btn-primary" disabled>
+            Confirm downloads
+          </button>
+        </div>
+      </footer>
+      <section id="preview-results" aria-label="Download results" hidden>
+        <h2>Download results</h2>
+        <ul id="preview-result-list"></ul>
+      </section>
+      <p class="footnote">
+        Search matches file titles and module names. Dates use Singapore time.
+        Hidden, locked, broken items and web links are excluded. Refresh after
+        30 minutes or a plugin restart to review a current list.
+      </p>
+      <script type="module">
+        /* APP_SCRIPT */
+      </script>
+    </main>
+  </body>
+</html>
