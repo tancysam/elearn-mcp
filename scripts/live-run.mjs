@@ -7,6 +7,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 const expectedTools = [
+  "elearn_list_events",
+  "elearn_list_announcements",
   "elearn_preview_downloads",
   "elearn_confirm_downloads",
   "elearn_open_course_browser",

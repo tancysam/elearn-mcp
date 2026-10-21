@@ -8,6 +8,8 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const expectedTools = [
+  "elearn_list_events",
+  "elearn_list_announcements",
   "elearn_preview_downloads",
   "elearn_confirm_downloads",
   "elearn_open_course_browser",
