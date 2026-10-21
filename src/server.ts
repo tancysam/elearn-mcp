@@ -67,16 +67,18 @@ server.registerTool(
   {
     title: "Authenticate with SMU eLearn",
     description:
-      "Open the dedicated Edge profile for SMU SSO/MFA, wait one minute by default, automatically verify the login, save owner-only session state, and close Edge.",
+      "Sign in through a dedicated Edge or Chrome profile, verify SMU SSO/MFA, and save owner-only session state. The browser argument selects the browser for this server process; ELEARN_BROWSER sets the startup default.",
     inputSchema: {
+      browser: z.enum(["edge", "chrome"]).optional(),
       initialWaitSeconds: z.number().min(1).max(300).default(60),
       pollIntervalSeconds: z.number().min(1).max(60).default(15),
       timeoutSeconds: z.number().min(10).max(600).default(300),
     },
   },
-  async ({ initialWaitSeconds, pollIntervalSeconds, timeoutSeconds }) => {
+  async ({ browser, initialWaitSeconds, pollIntervalSeconds, timeoutSeconds }) => {
     try {
       const result = await sessions.authenticateInteractively({
+        ...(browser ? { browser } : {}),
         initialWaitSeconds,
         pollIntervalSeconds,
         timeoutSeconds,
@@ -93,7 +95,7 @@ server.registerTool(
   "elearn_auth_status",
   {
     title: "Check eLearn authentication",
-    description: "Check whether the dedicated Edge profile is currently authenticated with SMU eLearn.",
+    description: "Check whether the selected browser session is currently authenticated with SMU eLearn.",
     inputSchema: {},
   },
   async () =>

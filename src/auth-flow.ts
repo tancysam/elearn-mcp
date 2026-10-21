@@ -1,11 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright-core";
-import type { Config } from "./config.js";
+import { browserChannel, browserName, configForBrowser, type AuthBrowser, type Config } from "./config.js";
 import { AuthenticationRequiredError, ElearnError } from "./errors.js";
 import { D2LClient } from "./d2l-client.js";
 
 export interface InteractiveAuthenticationOptions {
+  browser?: AuthBrowser;
   initialWaitSeconds?: number;
   pollIntervalSeconds?: number;
   timeoutSeconds?: number;
@@ -14,6 +15,7 @@ export interface InteractiveAuthenticationOptions {
 
 export interface InteractiveAuthenticationResult {
   authenticated: true;
+  browser: AuthBrowser;
   attempts: number;
   checkedAfterSeconds: number;
   authStateFile: string;
@@ -23,6 +25,7 @@ export async function runInteractiveAuthentication(
   config: Config,
   options: InteractiveAuthenticationOptions = {},
 ): Promise<InteractiveAuthenticationResult> {
+  if (options.browser) config = configForBrowser(config, options.browser);
   const initialWaitSeconds = options.initialWaitSeconds ?? 60;
   const pollIntervalSeconds = options.pollIntervalSeconds ?? 15;
   const timeoutSeconds = options.timeoutSeconds ?? 300;
@@ -41,11 +44,11 @@ export async function runInteractiveAuthentication(
   await fs.mkdir(config.profileDir, { recursive: true });
   await fs.mkdir(path.dirname(config.authStateFile), { recursive: true });
 
-  log("Opening a dedicated Microsoft Edge profile for SMU eLearn authentication...");
+  log(`Opening a dedicated ${browserName(config.browser)} profile for SMU eLearn authentication...`);
   log(`Profile: ${config.profileDir}`);
 
   const context = await chromium.launchPersistentContext(config.profileDir, {
-    channel: "msedge",
+    channel: browserChannel(config.browser),
     headless: false,
     viewport: { width: 1280, height: 900 },
   });
@@ -59,7 +62,7 @@ export async function runInteractiveAuthentication(
     const page = pages[0] ?? (await context.newPage());
     await page.goto(`${config.baseUrl}/d2l/home`, { waitUntil: "domcontentloaded" });
 
-    log("Complete the SMU Microsoft sign-in and MFA flow in Edge.");
+    log(`Complete the SMU Microsoft sign-in and MFA flow in ${browserName(config.browser)}.`);
     log(`eLearn will be checked automatically after ${initialWaitSeconds} seconds.`);
     await delay(initialWaitSeconds * 1_000);
 
@@ -76,6 +79,7 @@ export async function runInteractiveAuthentication(
         log("The state contains browser session credentials. It does not contain your password or MFA response.");
         return {
           authenticated: true,
+          browser: config.browser,
           attempts,
           checkedAfterSeconds,
           authStateFile: config.authStateFile,
@@ -85,7 +89,7 @@ export async function runInteractiveAuthentication(
         const remainingMs = deadline - Date.now();
         if (remainingMs <= 0) {
           throw new AuthenticationRequiredError(
-            `SMU sign-in was not complete after ${timeoutSeconds} seconds. Run authentication again and finish SSO/MFA in Edge.`,
+            `SMU sign-in was not complete after ${timeoutSeconds} seconds. Run authentication again and finish SSO/MFA in ${browserName(config.browser)}.`,
           );
         }
         const waitMs = Math.min(pollIntervalSeconds * 1_000, remainingMs);

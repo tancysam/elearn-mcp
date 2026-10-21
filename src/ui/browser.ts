@@ -462,7 +462,7 @@ button("open-course").addEventListener("click", () => {
 button("authenticate").addEventListener("click", async () => {
   button("authenticate").disabled = true;
   notice(
-    "Complete SMU sign-in and MFA in Chrome. This can take a few minutes.",
+    "Complete SMU sign-in and MFA in the selected browser. This can take a few minutes.",
   );
   try {
     await call("elearn_authenticate", {}, 360_000);

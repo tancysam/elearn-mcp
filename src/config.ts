@@ -1,7 +1,10 @@
 import os from "node:os";
 import path from "node:path";
 
+export type AuthBrowser = "edge" | "chrome";
+
 export interface Config {
+  browser: AuthBrowser;
   baseUrl: string;
   lpVersion: string;
   leVersion: string;
@@ -29,18 +32,23 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const browser = env.ELEARN_BROWSER ?? "edge";
+  if (browser !== "edge" && browser !== "chrome") {
+    throw new Error("ELEARN_BROWSER must be edge or chrome.");
+  }
   const baseUrl = (env.ELEARN_BASE_URL ?? "https://elearn.smu.edu.sg").replace(/\/$/, "");
   const profileDir = path.resolve(
-    env.ELEARN_PROFILE_DIR ?? path.join(os.homedir(), ".elearn-mcp", "browser-profile"),
+    env.ELEARN_PROFILE_DIR ?? path.join(os.homedir(), ".elearn-mcp", browser === "edge" ? "browser-profile" : "browser-profile-chrome"),
   );
   const authStateFile = path.resolve(
-    env.ELEARN_AUTH_STATE_FILE ?? path.join(os.homedir(), ".elearn-mcp", "storage-state.json"),
+    env.ELEARN_AUTH_STATE_FILE ?? path.join(os.homedir(), ".elearn-mcp", browser === "edge" ? "storage-state.json" : "storage-state-chrome.json"),
   );
   const downloadDir = path.resolve(
     env.ELEARN_DOWNLOAD_DIR ?? path.join(process.cwd(), "downloads"),
   );
 
   return {
+    browser,
     baseUrl,
     lpVersion: env.ELEARN_LP_VERSION ?? "1.49",
     leVersion: env.ELEARN_LE_VERSION ?? "1.49",
@@ -50,4 +58,24 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     downloadDir,
     headless: parseBoolean(env.ELEARN_HEADLESS, true),
   };
+}
+
+/** Preserve custom paths while separating the default browser profiles and sessions. */
+export function configForBrowser(config: Config, browser: AuthBrowser): Config {
+  const previousDefaults = loadConfig({ ELEARN_BROWSER: config.browser });
+  const nextDefaults = loadConfig({ ELEARN_BROWSER: browser });
+  return {
+    ...config,
+    browser,
+    profileDir: config.profileDir === previousDefaults.profileDir ? nextDefaults.profileDir : config.profileDir,
+    authStateFile: config.authStateFile === previousDefaults.authStateFile ? nextDefaults.authStateFile : config.authStateFile,
+  };
+}
+
+export function browserChannel(browser: AuthBrowser): "msedge" | "chrome" {
+  return browser === "edge" ? "msedge" : "chrome";
+}
+
+export function browserName(browser: AuthBrowser): string {
+  return browser === "edge" ? "Microsoft Edge" : "Google Chrome";
 }

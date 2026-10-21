@@ -27,30 +27,8 @@ const expectedTools = [
 ].sort();
 const pluginServers = [
   {
-    client: "Codex",
-    path: path.join(
-      projectRoot,
-      "plugin-package",
-      "codex",
-      "smu-elearn",
-      "mcp",
-      "dist",
-      "src",
-      "server.js",
-    ),
-  },
-  {
-    client: "Claude",
-    path: path.join(
-      projectRoot,
-      "plugin-package",
-      "claude",
-      "smu-elearn",
-      "mcp",
-      "dist",
-      "src",
-      "server.js",
-    ),
+    client: "Claude Code",
+    path: path.join(projectRoot, "plugin-package", "claude", "smu-elearn", "mcp", "dist", "src", "server.js"),
   },
 ];
 
@@ -74,6 +52,9 @@ for (const pluginServer of pluginServers) {
       expectedTools,
       `${pluginServer.client} plugin tool list did not match the expected contract`,
     );
+    const auth = toolList.tools.find((tool) => tool.name === "elearn_authenticate");
+    assert.deepEqual(auth.inputSchema.properties.browser.enum, ["edge", "chrome"]);
+    assert.ok(!auth.inputSchema.required?.includes("browser"), "Browser choice must remain optional");
     const opener = toolList.tools.find((tool) => tool.name === "elearn_open_course_browser");
     assert.equal(opener._meta.ui.resourceUri, "ui://smu-elearn/course-browser");
     assert.deepEqual(opener._meta["openai/ui"].entrypoints, [{ type: "global" }, { type: "thread" }]);

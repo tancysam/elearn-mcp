@@ -59,7 +59,7 @@ try {
     pollIntervalSeconds: 1,
     timeoutSeconds: 30,
   });
-  assert.equal(interactiveAuth.authenticated, true, "Interactive Chrome authentication did not succeed");
+  assert.equal(interactiveAuth.authenticated, true, "Interactive browser authentication did not succeed");
 
   const auth = await call("elearn_auth_status");
   assert.equal(auth.authenticated, true, "Saved eLearn session was not authenticated");
@@ -176,7 +176,7 @@ try {
         assertions: {
           mcpHandshake: true,
           registeredTools: names.length,
-          interactiveChromeAuthentication: true,
+          interactiveBrowserAuthentication: true,
           authenticatedAfterRestart: true,
           activeCourses: courseResult.count,
           pinnedCourses: pinnedResult.count,
