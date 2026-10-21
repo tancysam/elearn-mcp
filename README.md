@@ -14,6 +14,8 @@ This is the `claude` branch, tailored for Claude Code. It builds only `plugin-pa
 
 | MCP tool | Purpose |
 |---|---|
+| `elearn_list_events` | Read course calendar events, defaulting to the current Singapore week. |
+| `elearn_list_announcements` | Read and search currently visible course announcements. |
 | `elearn_preview_downloads` | Prepare a weekly/search/selected-file preview without writing downloads. |
 | `elearn_confirm_downloads` | UI-only confirmation for checked files in an active preview. |
 | `elearn_open_course_browser` | Open the interactive course browser from chat or supported navigation entrypoints. |
@@ -199,3 +201,12 @@ Use the same setting when starting the MCP server. `.env.example` documents the 
 Edge keeps the existing `~/.elearn-mcp/browser-profile` and `~/.elearn-mcp/storage-state.json`. Chrome defaults to `~/.elearn-mcp/browser-profile-chrome` and `~/.elearn-mcp/storage-state-chrome.json`. Explicit `ELEARN_PROFILE_DIR` and `ELEARN_AUTH_STATE_FILE` overrides are preserved. Install the selected browser first.
 
 The server saves session cookies and browser storage after normal SMU sign-in in its dedicated profile. It does not read passwords or extract credentials from your everyday browser profile.
+
+## Events and announcements
+
+- Ask **“What eLearn events do I have this week?”** to use `elearn_list_events`. It defaults to the current Monday–Sunday in **Asia/Singapore** across pinned, active courses. For another window, supply both `since` and `until` as ISO timestamps with offsets. The tool preserves all-day dates and flags recurring events without expanding their occurrences. Calendar entries are not a complete timetable or assessment deadline list.
+- Ask **“Show my course announcements”** or **“Find announcements about the lab test”** to use `elearn_list_announcements`. It returns currently visible, published announcements, their rich-text bodies, dates, course links, and attachment metadata. Hidden, unpublished, future, and expired entries are excluded. Optional `query` searches titles and bodies; `since`/`until` filter publication time (start date, falling back to creation date), not modification time.
+- Both tools accept `scope: "all"` or explicit `courseIds`, with a default maximum of 25 courses and 100 results. They report failed or unavailable courses and omitted results. Always disclose `partial: true` rather than describing the response as complete.
+- Both tools are read-only. Reading announcements does not dismiss them or download attachments. There is no weekly briefing tool or new scheduled automation.
+
+Rebuild with `npm run build:plugins`, then reload the installed plugin to expose the new tools. The bundled runtime is generated and not committed.
