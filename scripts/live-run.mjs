@@ -66,6 +66,13 @@ try {
   const auth = await call("elearn_auth_status");
   assert.equal(auth.authenticated, true, "Saved eLearn session was not authenticated");
 
+  for (const tool of ["elearn_list_events", "elearn_list_announcements"]) {
+    const result = await call(tool, { maxCourses: 3 });
+    const items = tool === "elearn_list_events" ? result.events : result.announcements;
+    assert.equal(result.count, items.length);
+    assert.equal(result.failures.length, 0, `${tool} returned course failures`);
+  }
+
   const courseResult = await call("elearn_list_courses", { activeOnly: true, limit: 200 });
   assert.ok(courseResult.count > 0, "No active eLearn courses were returned");
   assert.equal(courseResult.count, courseResult.courses.length);
