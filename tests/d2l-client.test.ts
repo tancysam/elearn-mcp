@@ -5,6 +5,7 @@ import { D2LClient } from "../src/d2l-client.js";
 import { AuthenticationRequiredError } from "../src/errors.js";
 
 const config: Config = {
+  browser: "edge",
   baseUrl: "https://elearn.smu.edu.sg",
   lpVersion: "1.49",
   leVersion: "1.49",

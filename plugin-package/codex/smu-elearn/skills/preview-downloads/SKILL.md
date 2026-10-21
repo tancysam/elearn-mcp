@@ -3,7 +3,9 @@ name: preview-downloads
 description: Use when the user asks to download SMU eLearn files for a week, search term, course, or selected document list, including scheduled weekly download runs. Prepare a file preview and wait for the user to confirm before downloading.
 ---
 
-# Preview eLearn downloads
+# Preview eLearn downloads in Codex
+
+In Codex hosts that support MCP Apps, use the inline preview for review and confirmation. The full course browser can also be opened from supported navigation or conversation tabs.
 
 For weekly, search-based, or multi-file download requests, call `elearn_preview_downloads` first. Preparing a preview reads course metadata and does not download files. Let the user review the list, destination, and warnings and click **Confirm downloads** in the app. Never automatically call the legacy download tools after preparing a preview, including during scheduled runs.
 

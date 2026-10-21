@@ -21,7 +21,8 @@
         "ELEARN_AUTH_POLL_INTERVAL_SECONDS",
         "ELEARN_AUTH_TIMEOUT_SECONDS",
         "ELEARN_DOWNLOAD_DIR",
-        "ELEARN_HEADLESS"
+        "ELEARN_HEADLESS",
+        "ELEARN_BROWSER"
       ],
       "startup_timeout_sec": 20,
       "tool_timeout_sec": 420

@@ -32,19 +32,15 @@ jobs:
       - name: Verify production build
         run: npm run check
 
-      - name: Build self-contained client plugins
+      - name: Build self-contained Codex plugin
         run: npm run build:plugins
 
-      - name: Verify plugin build isolation and parity
+      - name: Verify plugin handshake and runtime parity
         run: |
           npm test
           npm run test:plugins
           diff -qr dist plugin-package/codex/smu-elearn/mcp/dist
-          diff -qr dist plugin-package/claude/smu-elearn/mcp/dist
-          diff -q plugin-package/codex/smu-elearn/mcp/package.json plugin-package/claude/smu-elearn/mcp/package.json
-          diff -q plugin-package/codex/smu-elearn/mcp/package-lock.json plugin-package/claude/smu-elearn/mcp/package-lock.json
           npm ls --omit=dev --depth=0 --prefix plugin-package/codex/smu-elearn/mcp
-          npm ls --omit=dev --depth=0 --prefix plugin-package/claude/smu-elearn/mcp
 
       - name: Audit production dependencies
         run: npm audit --omit=dev

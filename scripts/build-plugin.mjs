@@ -21,10 +21,6 @@ const pluginTargets = [
     name: "Codex",
     root: path.join(projectRoot, "plugin-package", "codex", "smu-elearn"),
   },
-  {
-    name: "Claude",
-    root: path.join(projectRoot, "plugin-package", "claude", "smu-elearn"),
-  },
 ];
 const stagingDirectory = await mkdtemp(
   path.join(os.tmpdir(), "elearn-mcp-plugin-runtime-"),
@@ -102,7 +98,7 @@ try {
     version: rootPackage.version,
     private: true,
     license: rootPackage.license,
-    description: "Generated runtime for the SMU eLearn Codex and Claude plugins",
+    description: "Generated runtime for the SMU eLearn Codex plugin",
     type: rootPackage.type,
     scripts: {
       start: "node dist/src/server.js",
