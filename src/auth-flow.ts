@@ -41,11 +41,11 @@ export async function runInteractiveAuthentication(
   await fs.mkdir(config.profileDir, { recursive: true });
   await fs.mkdir(path.dirname(config.authStateFile), { recursive: true });
 
-  log("Opening a dedicated Google Chrome profile for SMU eLearn authentication...");
+  log("Opening a dedicated Microsoft Edge profile for SMU eLearn authentication...");
   log(`Profile: ${config.profileDir}`);
 
   const context = await chromium.launchPersistentContext(config.profileDir, {
-    channel: "chrome",
+    channel: "msedge",
     headless: false,
     viewport: { width: 1280, height: 900 },
   });
@@ -59,7 +59,7 @@ export async function runInteractiveAuthentication(
     const page = pages[0] ?? (await context.newPage());
     await page.goto(`${config.baseUrl}/d2l/home`, { waitUntil: "domcontentloaded" });
 
-    log("Complete the SMU Microsoft sign-in and MFA flow in Chrome.");
+    log("Complete the SMU Microsoft sign-in and MFA flow in Edge.");
     log(`eLearn will be checked automatically after ${initialWaitSeconds} seconds.`);
     await delay(initialWaitSeconds * 1_000);
 
@@ -85,7 +85,7 @@ export async function runInteractiveAuthentication(
         const remainingMs = deadline - Date.now();
         if (remainingMs <= 0) {
           throw new AuthenticationRequiredError(
-            `SMU sign-in was not complete after ${timeoutSeconds} seconds. Run authentication again and finish SSO/MFA in Chrome.`,
+            `SMU sign-in was not complete after ${timeoutSeconds} seconds. Run authentication again and finish SSO/MFA in Edge.`,
           );
         }
         const waitMs = Math.min(pollIntervalSeconds * 1_000, remainingMs);

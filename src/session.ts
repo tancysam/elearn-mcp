@@ -32,7 +32,7 @@ export class SessionManager {
     let browser: Browser | null = null;
     try {
       browser = await chromium.launch({
-        channel: "chrome",
+        channel: "msedge",
         headless: this.config.headless,
       });
       const context = await browser.newContext({
@@ -44,7 +44,7 @@ export class SessionManager {
     } catch (error) {
       await browser?.close().catch(() => undefined);
       throw new ElearnError(
-        "Could not start Google Chrome with the saved eLearn session. Make sure Chrome is installed and rerun `npm run auth` if needed.",
+        "Could not start Microsoft Edge with the saved eLearn session. Make sure Edge is installed and rerun `npm run auth` if needed.",
         "BROWSER_START_FAILED",
         undefined,
         { cause: error instanceof Error ? error.message : String(error) },

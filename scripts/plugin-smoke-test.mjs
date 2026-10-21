@@ -8,6 +8,11 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const expectedTools = [
+  "elearn_preview_downloads",
+  "elearn_confirm_downloads",
+  "elearn_open_course_browser",
+  "elearn_browse_course",
+  "elearn_download_documents",
   "elearn_authenticate",
   "elearn_auth_status",
   "elearn_list_courses",
@@ -69,6 +74,20 @@ for (const pluginServer of pluginServers) {
       expectedTools,
       `${pluginServer.client} plugin tool list did not match the expected contract`,
     );
+    const opener = toolList.tools.find((tool) => tool.name === "elearn_open_course_browser");
+    assert.equal(opener._meta.ui.resourceUri, "ui://smu-elearn/course-browser");
+    assert.deepEqual(opener._meta["openai/ui"].entrypoints, [{ type: "global" }, { type: "thread" }]);
+    const resource = await client.readResource({ uri: opener._meta.ui.resourceUri });
+    assert.match(resource.contents[0].mimeType, /text\/html/);
+    assert.match(resource.contents[0].text, /Download selected/);
+    assert.ok(!resource.contents[0].text.includes("/* APP_SCRIPT */"), "UI script was not bundled");
+    assert.deepEqual(resource.contents[0]._meta["openai/ui"].availableDisplayModes, ["fullscreen"]);
+    const preview = toolList.tools.find((tool) => tool.name === "elearn_preview_downloads");
+    const confirmation = toolList.tools.find((tool) => tool.name === "elearn_confirm_downloads");
+    assert.deepEqual(confirmation._meta.ui.visibility, ["app"]);
+    const previewResource = await client.readResource({ uri: preview._meta.ui.resourceUri });
+    assert.match(previewResource.contents[0].text, /Confirm downloads/);
+    assert.equal(previewResource.contents[0]._meta["openai/ui"].preferredDisplayMode, "inline");
     console.log(`${pluginServer.client} plugin MCP handshake passed (${names.length} tools)`);
   } finally {
     await client.close().catch(() => undefined);

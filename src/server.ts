@@ -15,14 +15,18 @@ import {
 import type { D2LClient } from "./d2l-client.js";
 import { ElearnError } from "./errors.js";
 import { SessionManager } from "./session.js";
+import { BROWSER_ICON, registerCourseBrowser } from "./browser-app.js";
 import type { Course, CourseDocument } from "./types.js";
 
 const config = loadConfig();
 const sessions = new SessionManager(config);
 const server = new McpServer({
   name: "smu-elearn",
-  version: "0.1.0",
+  version: "0.3.0",
+  icons: [BROWSER_ICON],
 });
+
+registerCourseBrowser(server, () => sessions.client(), config);
 
 const positiveId = z.number().int().positive();
 const weekValue = z.union([z.number().int().min(1).max(99), z.string().min(1).max(100)]);
@@ -63,7 +67,7 @@ server.registerTool(
   {
     title: "Authenticate with SMU eLearn",
     description:
-      "Open the dedicated Chrome profile for SMU SSO/MFA, wait one minute by default, automatically verify the login, save owner-only session state, and close Chrome.",
+      "Open the dedicated Edge profile for SMU SSO/MFA, wait one minute by default, automatically verify the login, save owner-only session state, and close Edge.",
     inputSchema: {
       initialWaitSeconds: z.number().min(1).max(300).default(60),
       pollIntervalSeconds: z.number().min(1).max(60).default(15),
@@ -89,7 +93,7 @@ server.registerTool(
   "elearn_auth_status",
   {
     title: "Check eLearn authentication",
-    description: "Check whether the dedicated Chrome profile is currently authenticated with SMU eLearn.",
+    description: "Check whether the dedicated Edge profile is currently authenticated with SMU eLearn.",
     inputSchema: {},
   },
   async () =>
@@ -330,7 +334,7 @@ server.registerTool(
   {
     title: "Download an eLearn document",
     description:
-      "Download a file topic to the configured local download directory. Existing files are never overwritten; a numeric suffix is added.",
+      "Download a file topic after user approval. For weekly or search-based requests, use elearn_preview_downloads first and wait for confirmation. Download to the configured local download directory. Existing files are never overwritten; a numeric suffix is added.",
     inputSchema: {
       courseId: positiveId,
       topicId: positiveId,
