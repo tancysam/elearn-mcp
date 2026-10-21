@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { registerEvents } from "./events.js";
+import { registerAnnouncements } from "./announcements.js";
 import path from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -27,6 +29,8 @@ const server = new McpServer({
 });
 
 registerCourseBrowser(server, () => sessions.client(), config);
+registerAnnouncements(server, () => sessions.client());
+registerEvents(server, () => sessions.client());
 
 const positiveId = z.number().int().positive();
 const weekValue = z.union([z.number().int().min(1).max(99), z.string().min(1).max(100)]);

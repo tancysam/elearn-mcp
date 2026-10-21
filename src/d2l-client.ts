@@ -11,6 +11,9 @@ import type {
   D2LTableOfContents,
 } from "./types.js";
 
+import type { CalendarEvent } from "./events.js";
+import type { Announcement } from "./announcements.js";
+
 type QueryValue = string | number | boolean | undefined | null;
 
 export interface ListCoursesOptions {
@@ -160,6 +163,37 @@ export class D2LClient {
       return a.name.localeCompare(b.name);
     });
     return options.limit === undefined ? courses : courses.slice(0, options.limit);
+  }
+
+  async getEvents(courseId: number, since: string, until: string): Promise<CalendarEvent[]> {
+    const endpoint = `/d2l/api/le/${encodeURIComponent(this.config.leVersion)}/${courseId}/calendar/events/myEvents/`;
+    let next: string | null = this.buildUrl(endpoint, { startDateTime: since, endDateTime: until });
+    const seen = new Set<string>();
+    const events: CalendarEvent[] = [];
+    while (next) {
+      const url = new URL(next, this.config.baseUrl);
+      if (url.origin !== new URL(this.config.baseUrl).origin || url.pathname !== endpoint || url.username || url.password || seen.has(url.href) || seen.size >= 100) {
+        throw new ElearnError("Invalid calendar pagination link.", "INVALID_PAGINATION");
+      }
+      seen.add(url.href);
+      const page: { Objects: CalendarEvent[]; Next?: string | null } = await this.getJson(url.href);
+      if (!Array.isArray(page.Objects) || (page.Next != null && typeof page.Next !== "string")) {
+        throw new ElearnError("eLearn returned an invalid calendar page.", "INVALID_UPSTREAM_RESPONSE");
+      }
+      events.push(...page.Objects);
+      next = page.Next || null;
+    }
+    return events;
+  }
+
+  async getAnnouncements(courseId: number): Promise<Announcement[]> {
+    const items = await this.getJson<Announcement[]>(
+      `/d2l/api/le/${encodeURIComponent(this.config.leVersion)}/${courseId}/news/`,
+    );
+    if (!Array.isArray(items)) {
+      throw new ElearnError("eLearn returned an invalid announcement list.", "INVALID_UPSTREAM_RESPONSE");
+    }
+    return items;
   }
 
   async getTableOfContents(courseId: number): Promise<D2LTableOfContents> {
